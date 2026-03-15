@@ -1,0 +1,328 @@
+#gladiatortraining_registrations_app {
+  max-width: initial !important;
+  font-family:
+    Open Sans,
+    Arial,
+    sans-serif;
+}
+
+.eventLink:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.eventDescription .ce-block__content {
+  max-width: 100% !important;
+}
+
+.p-buttonset {
+  text-align: right;
+}
+
+.codex-editor__redactor {
+  padding-bottom: 2rem !important;
+}
+
+.not-paid {
+  background-color: var(--surface-600) !important;
+}
+.p-menuitem-link {
+  text-decoration: none !important;
+}
+
+/*  */
+.bottom-card {
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+  border-width: 0px;
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 4px !important;
+  border: 1px solid #d9d9d9;
+  box-shadow: 0px 20px 120px -16px rgba(0, 0, 0, 0.3) !important;
+}
+.bottom-card h5 {
+  text-transform: uppercase;
+  font-family: Oswald, Helvetica, Arial, Lucida, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  letter-spacing: 2px;
+  line-height: 1.8em;
+  color: #000;
+}
+.card-image {
+  border-radius: 6px 6px 0 0;
+  width: 100%;
+  height: 100%;
+}
+.p-selectbutton .p-button.p-highlight {
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #fff;
+}
+
+.p-button {
+  padding: 0.75rem 1.25rem !important;
+}
+
+.p-selectbutton .p-button {
+  background: #fff !important;
+}
+
+.p-selectbutton div[aria-pressed="false"] {
+  color: #fa2a20 !important;
+}
+
+.events button.p-paginator-page,
+.back-link {
+  background: transparent;
+  font-family: "Oswald", Helvetica, Arial, Lucida, sans-serif !important;
+  font-size: 16px;
+  text-shadow: 0.23em 0.33em 0em rgba(0, 0, 0, 0.4);
+  border-radius: 0;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  box-shadow: 0px 2px 0px 0px #fa2a20;
+}
+
+.back-link {
+  color: rgba(0, 0, 0, 0.63) !important;
+  text-shadow: none !important;
+  text-decoration: none;
+  color: rgba(0, 0, 0, 0.63) !important;
+  border-width: 0px !important;
+  border-radius: 0px;
+  letter-spacing: 3px;
+  font-size: 11px;
+  font-family: "Oswald", Helvetica, Arial, Lucida, sans-serif !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  background-color: rgba(0, 0, 0, 0);
+  line-height: 1.7em !important;
+  padding-top: 7px !important;
+  padding-bottom: 7px !important;
+  padding-right: 1em !important;
+  transition: all 300ms ease 0ms !important;
+  padding-left: 1em !important;
+}
+
+.back-link:hover {
+  color: #000000 !important;
+  padding-right: 1em !important;
+  padding-left: 1em !important;
+  box-shadow: 0px 8px 0px 0px #fa2a20;
+}
+
+.events .p-paginator .p-paginator-first,
+.events .p-paginator .p-paginator-last,
+.events .p-paginator .p-paginator-next,
+.events .p-paginator .p-paginator-prev {
+  color: #fa2a20;
+}
+
+.card-footer {
+  color: #000 !important;
+}
+
+.events .p-datatable-wrapper {
+  background-color: #fff !important;
+}
+
+.p-button-icon-left {
+  margin-right: 0.5rem !important;
+}
+.p-dropdown {
+  background: #fff !important;
+  border: 1px solid #ced4da !important;
+  box-sizing: border-box !important;
+}
+.p-sidebar-mask {
+  z-index: 110100 !important;
+}
+
+.p-sidebar {
+  background-color: #fff !important;
+}
+.p-inputtext {
+  background: #fff;
+  border: 1px solid #ced4da !important;
+  border-radius: 6px;
+  color: #495057 !important;
+  padding: 0.75rem !important;
+}
+.p-input-icon-left > .p-inputtext {
+  padding-left: 2.5rem !important;
+}
+.p-datepicker {
+  padding: 0.5rem !important;
+}
+.p-datepicker:not(.p-datepicker-inline) {
+  background-color: #fff !important;
+}
+.p-datepicker .p-datepicker-header {
+  background-color: #fff !important;
+  padding: 0.5rem !important;
+  border-bottom: 1px solid #dee2e6 !important;
+}
+.p-datepicker .p-timepicker span {
+  font-size: 1.25rem !important;
+}
+#gladiatortraining_registrations_app h2 {
+  margin-bottom: 1rem !important;
+}
+
+.p-menu {
+  background: #fff !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px;
+  color: #495057;
+  padding: 0.25rem 0 !important;
+  width: 12.5rem;
+}
+.p-menu .p-menuitem-link {
+  border-radius: 0;
+  color: #000 !important;
+  padding: 0.75rem 1.25rem !important;
+  transition: box-shadow 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.p-sidebar .p-sidebar-content {
+  padding: 0 1.25rem 1.25rem 1.25rem !important;
+}
+.p-dropdown-panel .p-component {
+  background: #fff !important;
+  z-index: 100000000000;
+}
+
+.p-dropdown-panel {
+  z-index: 11111111111111111111 !important;
+}
+
+.p-dropdown-panel .p-dropdown-items {
+  padding: 0.75rem 0 !important;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item {
+  padding: 0.75rem 1.25rem !important;
+}
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item.p-highlight {
+  background: #eef2ff !important;
+  color: #4338ca;
+}
+
+.p-checkbox .p-checkbox-box {
+  background: #fff !important;
+  border: 2px solid #ced4da !important;
+  border-radius: 6px;
+  color: #495057;
+  height: 22px;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
+  width: 22px;
+}
+.p-checkbox .p-checkbox-box.p-highlight {
+  background: #6366f1 !important;
+  border-color: #6366f1 !important;
+}
+
+.p-dropdown-label.p-inputtext {
+  border: 0 !important;
+}
+.p-tag {
+  background: #6366f1 !important;
+  border-radius: 6px;
+  color: #fff !important;
+  font-size: 0.75rem !important;
+  font-weight: 700;
+  padding: 0.25rem 0.4rem !important;
+}
+.p-tag.p-tag-warning {
+  background-color: #f59e0b !important;
+  color: #fff;
+}
+.p-datepicker.p-component {
+  z-index: 1000000 !important;
+}
+.p-tag-icon {
+  margin-right: 0.75rem !important;
+}
+
+.p-input-icon-left > i,
+.p-input-icon-right > i,
+.p-input-icon-left > svg,
+.p-input-icon-right > svg,
+.p-input-icon-left > .p-input-prefix,
+.p-input-icon-right > .p-input-suffix {
+  position: absolute !important;
+  top: 50% !important;
+  margin-top: -0.5rem !important;
+}
+.p-tag.p-tag-danger {
+  background-color: #ef4444 !important;
+  color: #fff !important;
+}
+.p-tag.p-tag-success {
+  background-color: #22c55e !important;
+  color: #fff !important;
+}
+.p-confirm-popup.p-component.p-ripple-disabled.p-connected-overlay-enter-done {
+  background-color: #fff !important;
+  z-index: 1000000000;
+}
+
+.p-confirm-popup .p-confirm-popup-content {
+  padding: 1.25rem !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer {
+  padding: 0 1.25rem 1.25rem !important;
+  text-align: right;
+}
+.p-confirm-popup-icon.pi.pi-exclamation-triangle {
+  margin-right: 1rem;
+}
+.p-inline-message.p-inline-message-warn {
+  background: #fff2e2 !important;
+}
+.p-inline-message.p-component.p-inline-message-warn {
+  padding: 0.5rem;
+}
+.p-dropdown-items-wrapper {
+  background: #fff !important;
+}
+.p-dialog.p-confirm-dialog,
+.p-dialog-default {
+  background: #fff !important;
+  padding: 1rem !important;
+}
+.p-dialog-default .p-dialog-footer {
+  padding: 1.5rem !important;
+}
+.p-dialog.p-confirm-dialog .p-dialog-footer {
+  padding: 0 1.5rem 1.5rem !important;
+}
+.p-dialog.p-confirm-dialog .p-dialog-content {
+  padding: 0 1.5rem 2rem !important;
+}
+.p-dialog.p-confirm-dialog .p-dialog-header {
+  padding: 1.5rem !important;
+}
+.p-dialog.p-confirm-dialog .p-confirm-dialog-icon {
+  margin-right: 1rem !important;
+}
+.p-dialog.p-confirm-dialog {
+  background: #fff !important;
+  padding: 1em;
+}
+
+.embed-tool iframe {
+  width: 560px !important;
+  height: 320px !important;
+}
+.embed-tool__caption {
+  display: none;
+}
