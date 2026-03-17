@@ -101,7 +101,7 @@ function frontend_init()
 
 	$path = "/frontend/build/static";
 	wp_register_script(
-		"gladiatortraining_registrations_app_js",
+		"gladiatortraining_courses_app_js",
 		plugins_url($path . "/js/main.js", __FILE__),
 		array(),
 		$PLUGIN_VERSION,
@@ -109,7 +109,7 @@ function frontend_init()
 			'in_footer' => true,
 		)
 	);
-	wp_register_style("gladiatortraining_registrations_app_css", plugins_url($path . "/css/main.css", __FILE__), array(), $PLUGIN_VERSION, "all");
+	wp_register_style("gladiatortraining_courses_app_css", plugins_url($path . "/css/main.css", __FILE__), array(), $PLUGIN_VERSION, "all");
 
 	// fonts
 	$index = 0;
@@ -117,35 +117,26 @@ function frontend_init()
 		$fonts[] = $file;
 		$index += 1;
 		$filename = pathinfo($file);
-		wp_register_style("gladiatortraining_registrations_app_font_" . $index, plugins_url($path . "/media/" . $filename["basename"], __FILE__), array(), $PLUGIN_VERSION, "all");
+		wp_register_style("gladiatortraining_courses_app_font_" . $index, plugins_url($path . "/media/" . $filename["basename"], __FILE__), array(), $PLUGIN_VERSION, "all");
 	}
 }
 
 function gladiatortraining_courses_app()
 {
 
-	global $fonts;
+	require_once plugin_dir_path(__FILE__) . 'includes/CalendarProvider.php';
+	$calendarData = CalendarProvider::getData();
+
 	global $PLUGIN_VERSION;
 
-	wp_enqueue_script("gladiatortraining_registrations_app_js", $PLUGIN_VERSION, true);
+	wp_enqueue_script("gladiatortraining_courses_app_js", $PLUGIN_VERSION, true);
 	wp_localize_script(
-		'gladiatortraining_registrations_app_js',
-		'GladiatortrainingRegistrations',
-		array(
-			'nonce' => wp_create_nonce("wp_rest"),
-			'baseUrl' => home_url(),
-		)
+		'gladiatortraining_courses_app_js',
+		'GladiatortrainingCourses',
 	);
-	wp_enqueue_style("gladiatortraining_registrations_app_css");
-	// fonts
-	$index = 0;
-	foreach ($fonts as $font) {
-		$index += 1;
-		wp_enqueue_style("gladiatortraining_registrations_app_font_" . $index);
+	wp_enqueue_style("gladiatortraining_courses_app_css");
 
-	}
-
-	return "<div id=\"gladiatortraining_registrations_app\"></div>";
+	return "<div id=\"gladiatortraining_courses_app\"></div>";
 }
 
 
