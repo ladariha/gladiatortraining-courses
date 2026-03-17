@@ -1,6 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.13";
+$PLUGIN_VERSION = "1.0.16";
 /**
  * The plugin bootstrap file
  *
@@ -17,7 +17,7 @@ $PLUGIN_VERSION = "1.0.13";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.13
+ * Version:           1.0.16
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+

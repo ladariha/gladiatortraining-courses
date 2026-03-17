@@ -57,7 +57,28 @@ window.renderTimetable = function (data) {
     maxMin = Math.ceil(maxMin / 30) * 30;
     const numSlots = (maxMin - minMin) / 30;
 
-    // Row 1 = header, rows 2..numSlots+1 = time slots
+    // Mark which slots are occupied by any event (start or continuation)
+    const occupiedSlots = new Set();
+    filtered.forEach(event => {
+        const s = (toMinutes(event.start_time) - minMin) / 30;
+        const e = (toMinutes(event.end_time) - minMin) / 30;
+        for (let i = s; i < e; i++) occupiedSlots.add(i);
+    });
+
+    // Expand with ±1 buffer slot, then sort into a list
+    const visibleSet = new Set();
+    occupiedSlots.forEach(s => {
+        if (s > 0) visibleSet.add(s - 1);
+        visibleSet.add(s);
+        if (s < numSlots - 1) visibleSet.add(s + 1);
+    });
+    const visibleSlots = Array.from(visibleSet).sort((a, b) => a - b);
+
+    // Map original slot index → grid row (2-based, row 1 is header)
+    const slotToRow = {};
+    visibleSlots.forEach((slot, i) => { slotToRow[slot] = i + 2; });
+
+    // Row 1 = header, rows 2..numVisibleSlots+1 = visible time slots
     // Col 1 = time labels, cols 2..days.length+1 = days
     let items = '';
 
@@ -73,14 +94,14 @@ window.renderTimetable = function (data) {
         </div>`;
     });
 
-    // Time labels + background cells
-    for (let i = 0; i < numSlots; i++) {
-        const row = i + 2;
-        items += `<div class="gt-time-label" style="grid-column:1;grid-row:${row};">${formatTime(minMin + i * 30)}</div>`;
+    // Time labels + background cells (only visible slots)
+    visibleSlots.forEach(slot => {
+        const row = slotToRow[slot];
+        items += `<div class="gt-time-label" style="grid-column:1;grid-row:${row};">${formatTime(minMin + slot * 30)}</div>`;
         days.forEach((_, di) => {
             items += `<div class="gt-cell-bg" style="grid-column:${di + 2};grid-row:${row};"></div>`;
         });
-    }
+    });
 
     // Events
     filtered.forEach(event => {
@@ -89,7 +110,7 @@ window.renderTimetable = function (data) {
         const startSlot = (toMinutes(event.start_time) - minMin) / 30;
         const span = (toMinutes(event.end_time) - toMinutes(event.start_time)) / 30;
         const col = dayIdx + 2;
-        const row = startSlot + 2;
+        const row = slotToRow[startSlot];
         const instructor = event.instructor ? `<span class="gt-event-instructor">${event.instructor}</span>` : '';
         items += `<div class="gt-event" style="grid-column:${col};grid-row:${row}/span ${span};">
             <span class="gt-event-name">${event.name}</span>
@@ -108,17 +129,17 @@ window.renderTimetable = function (data) {
         .gt-timetable {
             display: grid;
             grid-template-columns: 56px repeat(${days.length}, 1fr);
-            grid-template-rows: auto repeat(${numSlots}, 40px);
-            border-left: 1px solid #e2e2e2;
-            border-top: 1px solid #e2e2e2;
+            grid-template-rows: auto repeat(${visibleSlots.length}, 40px);
+            border-left: 1px solid #666;
+            border-top: 1px solid #666;
         }
         .gt-corner {
-            background: #f7f7f7;
-            border-right: 1px solid #e2e2e2;
-            border-bottom: 1px solid #e2e2e2;
+            background: #2a2e40;
+            border-right: 1px solid #666;
+            border-bottom: 1px solid #666;
         }
         .gt-col-header {
-            background: #2ea3f2;
+            background: #2a2e40;
             color: #fff;
             padding: 8px 6px;
             text-align: center;
@@ -126,8 +147,8 @@ window.renderTimetable = function (data) {
             flex-direction: column;
             align-items: center;
             gap: 2px;
-            border-right: 1px solid #1a8fd1;
-            border-bottom: 1px solid #e2e2e2;
+            border-right: 1px solid #666;
+            border-bottom: 1px solid #666;
         }
         .gt-day-name {
             font-family: 'Oswald', sans-serif;
@@ -141,20 +162,20 @@ window.renderTimetable = function (data) {
             opacity: 0.9;
         }
         .gt-time-label {
-            background: #f7f7f7;
+            background: #2a2e40;
             font-size: 11px;
-            color: #999;
+            color: #fff;
             padding: 4px 6px 0;
             text-align: right;
-            border-right: 1px solid #e2e2e2;
+            border-right: 1px solid #666;
             border-bottom: 1px solid #eee;
         }
         .gt-cell-bg {
-            border-right: 1px solid #e2e2e2;
+            border-right: 1px solid #666;
             border-bottom: 1px solid #eee;
         }
         .gt-event {
-            background: #2ea3f2;
+            background: #292828;
             color: #fff;
             margin: 2px;
             border-radius: 3px;
