@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/vlriha/projects/gladiatortraining-courses -type f \\\\\\(-name *.json -o -name *.config.* \\\\\\))",
+      "WebFetch(domain:gladiatortraining.cz)"
+    ]
+  }
+}

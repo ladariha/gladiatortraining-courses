@@ -2,6 +2,9 @@
   "name": "gladiatortraining_client",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "build" : "rm -rf build && mkdir build && cp gc.js build/gc.js"
+  },
   "dependencies": {
   },
   "devDependencies": {

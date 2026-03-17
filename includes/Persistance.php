@@ -42,7 +42,7 @@ class Persistance
     ));
 
     Persistance::handleUpdateInsertResult($wpdb, $result, "persistSchedule");
-    return $result[0]->data;
+
   }
 
   public static function deleteOldErrors($limit)
@@ -74,7 +74,7 @@ class Persistance
       array(
         "msg" => mb_strimwidth($msg, 0, 1024, "..."),
       ),
-      array("%s", "%d")
+      array("%s")
     );
   }
 

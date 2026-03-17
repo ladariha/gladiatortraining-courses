@@ -1,7 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.0";
-$MAIL_API_KEY = "PLACEHOLDER";
+$PLUGIN_VERSION = "1.0.13";
 /**
  * The plugin bootstrap file
  *
@@ -18,7 +17,7 @@ $MAIL_API_KEY = "PLACEHOLDER";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.0
+ * Version:           1.0.13
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -68,57 +67,23 @@ function deactivate_gladiatortraining_courses()
 	Gladiatortraining_Courses_Deactivator::deactivate();
 }
 
-function activate_gladiatortraining_rest()
-{
-	require_once plugin_dir_path(__FILE__) . 'includes/UserRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/EventsRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/EventRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/RegistrationsRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/RegistrationGroupRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/ErrorsRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/MailRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/ApiKeysRoute.php';
-	require_once plugin_dir_path(__FILE__) . 'includes/RegisteredUserRoute.php';
-
-	(new UserRoute())->registerRoutes();
-	(new EventsRoute())->registerRoutes();
-	(new EventRoute())->registerRoutes();
-	(new RegistrationsRoute())->registerRoutes();
-	(new RegistrationGroupRoute())->registerRoutes();
-	(new MailRoute())->registerRoutes();
-	(new ErrorsRoute())->registerRoutes();
-	(new ApiKeysRoute())->registerRoutes();
-	(new RegisteredUserRoute())->registerRoutes();
-
-}
 
 
-function frontend_init()
+function frontend_gladiatortraining_courses()
 {
 
-	global $fonts;
 	global $PLUGIN_VERSION;
 
-	$path = "/frontend/build/static";
+	$path = "/frontend/build";
 	wp_register_script(
 		"gladiatortraining_courses_app_js",
-		plugins_url($path . "/js/main.js", __FILE__),
+		plugins_url($path . "/gc.js", __FILE__),
 		array(),
 		$PLUGIN_VERSION,
 		array(
 			'in_footer' => true,
 		)
 	);
-	wp_register_style("gladiatortraining_courses_app_css", plugins_url($path . "/css/main.css", __FILE__), array(), $PLUGIN_VERSION, "all");
-
-	// fonts
-	$index = 0;
-	foreach (array_filter(glob(__DIR__ . $path . "/media/*.*"), 'is_file') as $file) {
-		$fonts[] = $file;
-		$index += 1;
-		$filename = pathinfo($file);
-		wp_register_style("gladiatortraining_courses_app_font_" . $index, plugins_url($path . "/media/" . $filename["basename"], __FILE__), array(), $PLUGIN_VERSION, "all");
-	}
 }
 
 function gladiatortraining_courses_app()
@@ -127,23 +92,21 @@ function gladiatortraining_courses_app()
 	require_once plugin_dir_path(__FILE__) . 'includes/CalendarProvider.php';
 	$calendarData = CalendarProvider::getData();
 
-	global $PLUGIN_VERSION;
-
-	wp_enqueue_script("gladiatortraining_courses_app_js", $PLUGIN_VERSION, true);
+	wp_enqueue_script("gladiatortraining_courses_app_js");
 	wp_localize_script(
 		'gladiatortraining_courses_app_js',
 		'GladiatortrainingCourses',
+		$calendarData
 	);
-	wp_enqueue_style("gladiatortraining_courses_app_css");
-
-	return "<div id=\"gladiatortraining_courses_app\"></div>";
+	$jsonData = json_encode($calendarData);
+	return "<div id=\"gladiatortraining_courses_app\"><div id=\"gladiatortraining_courses_app_content\"></div><script>renderTimetable(" . $jsonData . ")</script></div>";
 }
 
 
 register_activation_hook(__FILE__, 'activate_gladiatortraining_courses');
 register_deactivation_hook(__FILE__, 'deactivate_gladiatortraining_courses');
-add_action('rest_api_init', 'activate_gladiatortraining_rest');
-add_action('init', 'frontend_init');
+
+add_action('init', 'frontend_gladiatortraining_courses');
 add_shortcode('gladiatortraining_courses_app', 'gladiatortraining_courses_app');
 
 
