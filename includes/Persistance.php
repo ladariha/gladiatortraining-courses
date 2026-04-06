@@ -107,6 +107,46 @@ class Persistance
 
   }
 
+  public static function getSocialImagesTableName()
+  {
+    global $wpdb;
+    return $wpdb->prefix . 'gt_social';
+  }
+
+  public static function getSocialImages()
+  {
+    global $wpdb;
+
+    $table = Persistance::getSocialImagesTableName();
+    $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $table . " ORDER BY id DESC LIMIT 1"));
+
+    if (empty($result)) {
+      return null;
+    }
+
+    $resultObj = new stdClass;
+    $resultObj->data = $result[0]->data;
+    $resultObj->time = $result[0]->time;
+    return $resultObj;
+  }
+
+  public static function persistSocialImages($jsonString, $timeStamp)
+  {
+    global $wpdb;
+
+    $table = Persistance::getSocialImagesTableName();
+    $result = $wpdb->insert(
+      $table,
+      array(
+        "data" => $jsonString,
+        "time" => $timeStamp,
+      ),
+      array("%s", "%d")
+    );
+
+    Persistance::handleUpdateInsertResult($wpdb, $result, "persistSocialImages");
+  }
+
   public static function initDatabase()
   {
 
@@ -114,6 +154,7 @@ class Persistance
 
     $dataTable = Persistance::getTableName();
     $errorsTable = Persistance::getErrorLogTableName();
+    $socialTable = Persistance::getSocialImagesTableName();
     $charset_collate = $wpdb->get_charset_collate();
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -129,6 +170,15 @@ class Persistance
       id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id),
       time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
       msg varchar(8192) CHARACTER SET utf8mb4 NOT NULL
+    )" . $charset_collate . ";";
+
+    dbDelta($sql);
+
+
+    $sql = "CREATE TABLE " . $socialTable . " (
+      id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id),
+      time bigint NOT NULL,
+      data longtext CHARACTER SET utf8mb4
     )" . $charset_collate . ";";
 
     dbDelta($sql);

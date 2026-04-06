@@ -48,6 +48,20 @@ $fonts = array();
 define('GLADIATORTRAINING_COURSES_VERSION', $PLUGIN_VERSION);
 
 /**
+ * Facebook social images configuration.
+ * Replace the empty strings with real values or override in wp-config.php.
+ */
+if (!defined('GT_SOCIAL_FB_TOKEN')) {
+	define('GT_SOCIAL_FB_TOKEN', '');
+}
+if (!defined('GT_SOCIAL_FB_PAGE_ID')) {
+	define('GT_SOCIAL_FB_PAGE_ID', '');
+}
+if (!defined('GT_SOCIAL_IMAGES_COUNT')) {
+	define('GT_SOCIAL_IMAGES_COUNT', 10);
+}
+
+/**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-gladiatortraining-courses-activator.php
  */
@@ -103,11 +117,24 @@ function gladiatortraining_courses_app()
 }
 
 
+function gladiator_social_images_app()
+{
+
+	require_once plugin_dir_path(__FILE__) . 'includes/SocialImages.php';
+	$images = SocialImages::getData();
+
+	wp_enqueue_script("gladiatortraining_courses_app_js");
+	$jsonData = wp_json_encode(array_values($images));
+	return "<div id=\"gladiator_social_images\"><div id=\"gladiator_social_images_content\"></div><script>renderSocialImages(" . $jsonData . ")</script></div>";
+}
+
+
 register_activation_hook(__FILE__, 'activate_gladiatortraining_courses');
 register_deactivation_hook(__FILE__, 'deactivate_gladiatortraining_courses');
 
 add_action('init', 'frontend_gladiatortraining_courses');
 add_shortcode('gladiatortraining_courses_app', 'gladiatortraining_courses_app');
+add_shortcode('gladiator_social_images', 'gladiator_social_images_app');
 
 
 /**
