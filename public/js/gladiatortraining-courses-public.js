@@ -60,8 +60,8 @@ window.renderTimetable = function (data) {
     // Mark which slots are occupied by any event (start or continuation)
     const occupiedSlots = new Set();
     filtered.forEach(event => {
-        const s = (toMinutes(event.start_time) - minMin) / 30;
-        const e = (toMinutes(event.end_time) - minMin) / 30;
+        const s = Math.floor((toMinutes(event.start_time) - minMin) / 30);
+        const e = Math.ceil((toMinutes(event.end_time) - minMin) / 30);
         for (let i = s; i < e; i++) occupiedSlots.add(i);
     });
 
@@ -107,8 +107,8 @@ window.renderTimetable = function (data) {
     filtered.forEach(event => {
         const dayIdx = days.indexOf(event.start_day);
         if (dayIdx === -1) return;
-        const startSlot = (toMinutes(event.start_time) - minMin) / 30;
-        const span = (toMinutes(event.end_time) - toMinutes(event.start_time)) / 30;
+        const startSlot = Math.floor((toMinutes(event.start_time) - minMin) / 30);
+        const span = Math.ceil((toMinutes(event.end_time) - toMinutes(event.start_time)) / 30);
         const col = dayIdx + 2;
         const row = slotToRow[startSlot];
         const instructor = event.instructor ? `<span class="gt-event-instructor">${event.instructor}</span>` : '';
