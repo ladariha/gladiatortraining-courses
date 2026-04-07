@@ -119,6 +119,50 @@ window.renderTimetable = function (data) {
         </div>`;
     });
 
+
+    // MOBILE VIEW (stacked by day)
+let mobileItems = '';
+
+days.forEach(day => {
+    const date = new Date(day + 'T00:00:00');
+
+    const dayEvents = grouped[day]
+        .slice()
+        .sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
+
+    mobileItems += `
+        <div class="gt-mobile-day">
+            <div class="gt-mobile-day-header">
+                <span class="gt-day-name">${DAY_NAMES[date.getDay()]}</span>
+                <span class="gt-day-date">${date.getDate()}. ${MONTH_NAMES[date.getMonth()]}</span>
+            </div>
+    `;
+
+    if (dayEvents.length === 0) {
+        mobileItems += `<div class="gt-mobile-empty">Dnes nejsou žádné tréninky</div>`;
+    }
+
+    dayEvents.forEach(event => {
+        const instructor = event.instructor
+            ? `<span class="gt-event-instructor">${event.instructor}</span>`
+            : '';
+
+        mobileItems += `
+            <div class="gt-mobile-event">
+                <div class="gt-mobile-time">
+                    ${event.start_time} – ${event.end_time}
+                </div>
+                <div class="gt-mobile-content">
+                    <span class="gt-event-name">${event.name}</span>
+                    ${instructor}
+                </div>
+            </div>
+        `;
+    });
+
+    mobileItems += `</div>`;
+});
+
     document.getElementById("gladiatortraining_courses_app_content").innerHTML = `
     <style>
         #gladiatortraining_courses_app {
@@ -205,8 +249,68 @@ window.renderTimetable = function (data) {
             font-weight: 600;
             opacity: 0.9;
         }
+.gt-mobile {
+    display: none;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+    .gt-timetable {
+        display: none;
+    }
+
+    .gt-mobile {
+        display: block;
+        padding: 8px;
+    }
+
+    .gt-mobile-day {
+        margin-bottom: 16px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .gt-mobile-day-header {
+        background: #2a2e40;
+        color: #fff;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .gt-mobile-event {
+        display: flex;
+        gap: 10px;
+        padding: 10px;
+        border-top: 1px solid #eee;
+        color: #fff;
+    }
+
+    .gt-mobile-time {
+        font-size: 12px;
+        font-weight: 600;
+        min-width: 90px;
+    }
+
+    .gt-mobile-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .gt-mobile-empty {
+        padding: 10px;
+        font-size: 12px;
+        opacity: 0.7;
+    }
+}
+
+
     </style>
-    <div class="gt-timetable">${items}</div>`;
+    <div class="gt-timetable">${items}</div>
+    <div class="gt-mobile">${mobileItems}</div>`;
 }
 
 

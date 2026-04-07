@@ -1,6 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.16";
+$PLUGIN_VERSION = "1.0.19";
 /**
  * The plugin bootstrap file
  *
@@ -17,7 +17,7 @@ $PLUGIN_VERSION = "1.0.16";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.16
+ * Version:           1.0.19
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -113,7 +113,7 @@ function gladiatortraining_courses_app()
 		$calendarData
 	);
 	$jsonData = json_encode($calendarData);
-	return "<div id=\"gladiatortraining_courses_app\"><div id=\"gladiatortraining_courses_app_content\"></div><script>renderTimetable(" . $jsonData . ")</script></div>";
+	return "<div id=\"gladiatortraining_courses_app\"><div id=\"gladiatortraining_courses_app_content\" style=\"overflow: auto\"></div><script>renderTimetable(" . $jsonData . ")</script></div>";
 }
 
 
