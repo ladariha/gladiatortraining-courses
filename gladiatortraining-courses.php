@@ -98,6 +98,16 @@ function frontend_gladiatortraining_courses()
 			'in_footer' => true,
 		)
 	);
+
+	wp_register_script(
+		"gladiatortraining_social_js",
+		plugins_url("/public/js/gladiatortraining-social.js", __FILE__),
+		array(),
+		$PLUGIN_VERSION,
+		array(
+			'in_footer' => true,
+		)
+	);
 }
 
 function gladiatortraining_courses_app()
@@ -123,9 +133,13 @@ function gladiator_social_images_app()
 	require_once plugin_dir_path(__FILE__) . 'includes/SocialImages.php';
 	$images = SocialImages::getData();
 
-	wp_enqueue_script("gladiatortraining_courses_app_js");
-	$jsonData = wp_json_encode(array_values($images));
-	return "<div id=\"gladiator_social_images\"><div id=\"gladiator_social_images_content\"></div><script>renderSocialImages(" . $jsonData . ")</script></div>";
+	wp_enqueue_script("gladiatortraining_social_js");
+	wp_localize_script(
+		'gladiatortraining_social_js',
+		'GladiatortrainingSocialImages',
+		array_values($images)
+	);
+	return "<div id=\"gladiator_social_images\"></div>";
 }
 
 
