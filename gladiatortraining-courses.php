@@ -150,6 +150,36 @@ add_action('init', 'frontend_gladiatortraining_courses');
 add_shortcode('gladiatortraining_courses_app', 'gladiatortraining_courses_app');
 add_shortcode('gladiator_social_images', 'gladiator_social_images_app');
 
+add_action('rest_api_init', function () {
+	register_rest_route('gladiatortraining/v1', '/social-token', array(
+		'methods'             => 'POST',
+		'callback'            => 'gladiatortraining_store_social_token',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+		'args' => array(
+			'token' => array(
+				'required'          => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			),
+		),
+	));
+});
+
+function gladiatortraining_store_social_token(WP_REST_Request $request)
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/Persistance.php';
+
+	$token = $request->get_param('token');
+	try {
+		Persistance::storeSocialToken($token);
+		return new WP_REST_Response(array('success' => true), 200);
+	} catch (Exception $e) {
+		return new WP_REST_Response(array('success' => false, 'message' => $e->getMessage()), 500);
+	}
+}
+
 
 /**
  * The core plugin class that is used to define internationalization,

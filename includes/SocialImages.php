@@ -65,7 +65,10 @@ class SocialImages
 
   private static function fetchFromFacebook()
   {
-    $token = GT_SOCIAL_FB_TOKEN;
+    $token = Persistance::getSocialToken();
+    if (empty($token)) {
+      $token = GT_SOCIAL_FB_TOKEN;
+    }
     $page_id = GT_SOCIAL_FB_PAGE_ID;
     $count = intval(GT_SOCIAL_IMAGES_COUNT);
 

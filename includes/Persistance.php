@@ -113,6 +113,43 @@ class Persistance
     return $wpdb->prefix . 'gt_social';
   }
 
+  public static function getSocialTokenTableName()
+  {
+    global $wpdb;
+    return $wpdb->prefix . 'gt_social_token';
+  }
+
+  public static function getSocialToken()
+  {
+    global $wpdb;
+
+    $table = Persistance::getSocialTokenTableName();
+    $result = $wpdb->get_results($wpdb->prepare("SELECT token FROM " . $table . " LIMIT 1"));
+
+    if (empty($result)) {
+      return '';
+    }
+
+    return $result[0]->token;
+  }
+
+  public static function storeSocialToken($token)
+  {
+    global $wpdb;
+
+    $table = Persistance::getSocialTokenTableName();
+    // Remove all existing tokens before inserting the new one.
+    // Table name comes from a controlled method, not user input.
+    $wpdb->query("DELETE FROM " . $table); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+    $result = $wpdb->insert(
+      $table,
+      array("token" => $token),
+      array("%s")
+    );
+
+    Persistance::handleUpdateInsertResult($wpdb, $result, "storeSocialToken");
+  }
+
   public static function getSocialImages()
   {
     global $wpdb;
@@ -155,6 +192,7 @@ class Persistance
     $dataTable = Persistance::getTableName();
     $errorsTable = Persistance::getErrorLogTableName();
     $socialTable = Persistance::getSocialImagesTableName();
+    $socialTokenTable = Persistance::getSocialTokenTableName();
     $charset_collate = $wpdb->get_charset_collate();
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 
@@ -179,6 +217,14 @@ class Persistance
       id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id),
       time bigint NOT NULL,
       data longtext CHARACTER SET utf8mb4
+    )" . $charset_collate . ";";
+
+    dbDelta($sql);
+
+
+    $sql = "CREATE TABLE " . $socialTokenTable . " (
+      id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (id),
+      token text CHARACTER SET utf8mb4 NOT NULL
     )" . $charset_collate . ";";
 
     dbDelta($sql);
