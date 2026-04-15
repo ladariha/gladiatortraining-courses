@@ -42,24 +42,43 @@ class SocialImages
     return array();
   }
 
+  private static function getRandomItems(array $items, int $max = 10): array {
+    $count = count($items);
+
+    // 1. Handle empty array immediately
+    if ($count === 0) {
+        return [];
+    }
+
+    // 2. Determine how many items to pick (cannot exceed actual count)
+    $numToPick = min($count, $max);
+
+    // 3. Get random keys
+    $keys = array_rand($items, $numToPick);
+
+    // 4. Ensure $keys is always an array (array_rand returns a single key if picking 1)
+    $keys = (array)$keys;
+
+    // 5. Map keys back to values
+    return array_intersect_key($items, array_flip($keys));
+}
+
   private static function fetchFromFacebook()
   {
-    $token   = GT_SOCIAL_FB_TOKEN;
+    $token = GT_SOCIAL_FB_TOKEN;
     $page_id = GT_SOCIAL_FB_PAGE_ID;
-    $count   = intval(GT_SOCIAL_IMAGES_COUNT);
+    $count = intval(GT_SOCIAL_IMAGES_COUNT);
 
     if (empty($token) || empty($page_id)) {
       return false;
     }
-
     $url = add_query_arg(
       array(
-        'fields'       => 'source',
-        'limit'        => $count,
-        'type'         => 'uploaded',
+        'fields' => 'attachments{media,subattachments{media,media_type},type}',
+        'limit' => $count,
         'access_token' => $token,
       ),
-      'https://graph.facebook.com/v18.0/' . rawurlencode($page_id) . '/photos'
+      'https://graph.facebook.com/v25.0/' . rawurlencode($page_id) . '/feed'
     );
 
     $response = wp_remote_get($url);
@@ -82,12 +101,25 @@ class SocialImages
     }
 
     $sources = array();
-    foreach ($data['data'] as $photo) {
-      if (!empty($photo['source'])) {
-        $sources[] = $photo['source'];
+    foreach ($data['data'] as $post) {
+      if (isset($post['attachments']) && isset($post['attachments']['data']) && is_array($post['attachments']['data'])) {
+        foreach ($post['attachments']['data'] as $attachment) {
+
+          if (isset($attachment['media']) && isset($attachment['media']['image']) && isset($attachment['media']['image']['src'])) {
+            $sources[] = $attachment['media']['image']['src'];
+          }
+
+          if (isset($attachment['subattachments']) && isset($attachment['subattachments']['data']) && is_array($attachment['subattachments']['data'])) {
+            foreach ($attachment['subattachments']['data'] as $sub) {
+              if ($sub['type'] === 'photo' && isset($sub['media']['image']['src'])) {
+                $sources[] = $sub['media']['image']['src'];
+              }
+            }
+          }
+        }
       }
     }
 
-    return $sources;
+    return SocialImages::getRandomItems(array_unique($sources), $count);
   }
 }

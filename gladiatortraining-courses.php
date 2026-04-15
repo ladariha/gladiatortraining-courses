@@ -55,7 +55,7 @@ if (!defined('GT_SOCIAL_FB_TOKEN')) {
 	define('GT_SOCIAL_FB_TOKEN', '');
 }
 if (!defined('GT_SOCIAL_FB_PAGE_ID')) {
-	define('GT_SOCIAL_FB_PAGE_ID', '');
+	define('GT_SOCIAL_FB_PAGE_ID', '668361683249635');
 }
 if (!defined('GT_SOCIAL_IMAGES_COUNT')) {
 	define('GT_SOCIAL_IMAGES_COUNT', 10);
