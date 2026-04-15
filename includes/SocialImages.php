@@ -8,35 +8,42 @@ class SocialImages
   {
     $now = time();
     $twentyFourHours = 24 * 60 * 60;
+    $count = intval(GT_SOCIAL_IMAGES_COUNT);
 
+    $persisted = null;
+    $cachedImages = array();
     try {
       $persisted = Persistance::getSocialImages();
-      if ($persisted !== null && ($now - intval($persisted->time)) < $twentyFourHours) {
-        return json_decode($persisted->data, true);
+      if ($persisted !== null) {
+        $cachedImages = json_decode($persisted->data, true) ?: array();
       }
     } catch (Exception $e) {
-      // no persisted data yet, fall through to fetch
+      // no persisted data yet
+    }
+
+    // Return fresh cache if it hasn't expired
+    if ($persisted !== null && ($now - intval($persisted->time)) < $twentyFourHours) {
+      return array_values(array_slice($cachedImages, 0, $count));
     }
 
     $images = SocialImages::fetchFromFacebook();
 
     if ($images !== false) {
+      // Merge: new images first, then fill remaining slots from old cache (deduplicated)
+      $merged = array_values(array_unique(array_merge(array_values($images), array_values($cachedImages))));
+      $merged = array_slice($merged, 0, $count);
+
       try {
-        Persistance::persistSocialImages(json_encode($images), $now);
+        Persistance::persistSocialImages(json_encode($merged), $now);
       } catch (Exception $e) {
         Persistance::logError('SocialImages persist error: ' . $e->getMessage());
       }
-      return $images;
+      return $merged;
     }
 
     // Fetch failed – return stale cached data if available
-    try {
-      $persisted = Persistance::getSocialImages();
-      if ($persisted !== null) {
-        return json_decode($persisted->data, true);
-      }
-    } catch (Exception $e) {
-      // nothing cached
+    if (!empty($cachedImages)) {
+      return array_values(array_slice($cachedImages, 0, $count));
     }
 
     return array();

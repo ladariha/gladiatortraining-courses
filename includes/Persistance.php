@@ -172,6 +172,8 @@ class Persistance
     global $wpdb;
 
     $table = Persistance::getSocialImagesTableName();
+    // Replace existing data — table name comes from a controlled method, not user input.
+    $wpdb->query("DELETE FROM " . $table); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
     $result = $wpdb->insert(
       $table,
       array(
