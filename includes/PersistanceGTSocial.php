@@ -159,6 +159,18 @@ class PersistanceGTSocial
     return $resultObj;
   }
 
+  public static function clearSocialImages()
+  {
+    global $wpdb;
+
+    $table = PersistanceGTSocial::getSocialImagesTableName();
+    // Table name comes from a controlled method, not user input.
+    $result = $wpdb->query("DELETE FROM " . $table); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+    if ($result === false) {
+      throw new ErrorException("clearSocialImages failed: " . $wpdb->last_error);
+    }
+  }
+
   public static function persistSocialImages($jsonString, $timeStamp)
   {
     global $wpdb;

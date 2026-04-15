@@ -166,6 +166,14 @@ add_action('rest_api_init', function () {
 			),
 		),
 	));
+
+	register_rest_route('gladiatortraining/v1', '/social-images/refresh', array(
+		'methods' => 'GET',
+		'callback' => 'gladiatortraining_refresh_social_images',
+		'permission_callback' => function () {
+			return current_user_can('manage_options');
+		},
+	));
 });
 
 function gladiatortraining_store_social_token(WP_REST_Request $request)
@@ -175,6 +183,18 @@ function gladiatortraining_store_social_token(WP_REST_Request $request)
 	$token = $request->get_param('token');
 	try {
 		PersistanceGTSocial::storeSocialToken($token);
+		return new WP_REST_Response(array('success' => true), 200);
+	} catch (Exception $e) {
+		return new WP_REST_Response(array('success' => false, 'message' => $e->getMessage()), 500);
+	}
+}
+
+function gladiatortraining_refresh_social_images()
+{
+	require_once plugin_dir_path(__FILE__) . 'includes/PersistanceGTSocial.php';
+
+	try {
+		PersistanceGTSocial::clearSocialImages();
 		return new WP_REST_Response(array('success' => true), 200);
 	} catch (Exception $e) {
 		return new WP_REST_Response(array('success' => false, 'message' => $e->getMessage()), 500);
