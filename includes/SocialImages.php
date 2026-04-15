@@ -1,6 +1,6 @@
 <?php
 
-require_once plugin_dir_path(__FILE__) . 'Persistance.php';
+require_once plugin_dir_path(__FILE__) . 'PersistanceGTSocial.php';
 
 class SocialImages
 {
@@ -13,7 +13,7 @@ class SocialImages
     $persisted = null;
     $cachedImages = array();
     try {
-      $persisted = Persistance::getSocialImages();
+      $persisted = PersistanceGTSocial::getSocialImages();
       if ($persisted !== null) {
         $cachedImages = json_decode($persisted->data, true) ?: array();
       }
@@ -34,9 +34,9 @@ class SocialImages
       $merged = array_slice($merged, 0, $count);
 
       try {
-        Persistance::persistSocialImages(json_encode($merged), $now);
+        PersistanceGTSocial::persistSocialImages(json_encode($merged), $now);
       } catch (Exception $e) {
-        Persistance::logError('SocialImages persist error: ' . $e->getMessage());
+        PersistanceGTSocial::logError('SocialImages persist error: ' . $e->getMessage());
       }
       return $merged;
     }
@@ -49,12 +49,13 @@ class SocialImages
     return array();
   }
 
-  private static function getRandomItems(array $items, int $max = 10): array {
+  private static function getRandomItems(array $items, int $max = 10): array
+  {
     $count = count($items);
 
     // 1. Handle empty array immediately
     if ($count === 0) {
-        return [];
+      return [];
     }
 
     // 2. Determine how many items to pick (cannot exceed actual count)
@@ -64,15 +65,15 @@ class SocialImages
     $keys = array_rand($items, $numToPick);
 
     // 4. Ensure $keys is always an array (array_rand returns a single key if picking 1)
-    $keys = (array)$keys;
+    $keys = (array) $keys;
 
     // 5. Map keys back to values
     return array_intersect_key($items, array_flip($keys));
-}
+  }
 
   private static function fetchFromFacebook()
   {
-    $token = Persistance::getSocialToken();
+    $token = PersistanceGTSocial::getSocialToken();
     if (empty($token)) {
       $token = GT_SOCIAL_FB_TOKEN;
     }
@@ -94,7 +95,7 @@ class SocialImages
     $response = wp_remote_get($url);
 
     if (is_wp_error($response)) {
-      Persistance::logError('SocialImages fetch error: ' . $response->get_error_message());
+      PersistanceGTSocial::logError('SocialImages fetch error: ' . $response->get_error_message());
       return false;
     }
 
@@ -102,7 +103,7 @@ class SocialImages
     $data = json_decode($body, true);
 
     if (isset($data['error'])) {
-      Persistance::logError('SocialImages FB API error: ' . $data['error']['message']);
+      PersistanceGTSocial::logError('SocialImages FB API error: ' . $data['error']['message']);
       return false;
     }
 

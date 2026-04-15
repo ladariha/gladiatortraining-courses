@@ -1,24 +1,15 @@
 <?php
 
-function errorToProperType($event)
-{
-  $result = new stdClass;
-  $result->time = $event->time;
-  $result->msg = $event->msg;
-  return $result;
-}
 
 
-
-
-class Persistance
+class PersistanceGTSocial
 {
 
   public static function getSchedule()
   {
     global $wpdb;
 
-    $table = Persistance::getTableName();
+    $table = PersistanceGTSocial::getTableName();
     $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $table));
 
     $resultObj = new stdClass;
@@ -31,7 +22,7 @@ class Persistance
   {
     global $wpdb;
 
-    $table = Persistance::getTableName();
+    $table = PersistanceGTSocial::getTableName();
     $result = $wpdb->get_results($wpdb->insert(
       $table,
       array(
@@ -41,7 +32,7 @@ class Persistance
       array("%s", "%d")
     ));
 
-    Persistance::handleUpdateInsertResult($wpdb, $result, "persistSchedule");
+    PersistanceGTSocial::handleUpdateInsertResult($wpdb, $result, "persistSchedule");
 
   }
 
@@ -49,7 +40,7 @@ class Persistance
   {
     try {
       global $wpdb;
-      $table = Persistance::getErrorLogTableName();
+      $table = PersistanceGTSocial::getErrorLogTableName();
       $count = $wpdb->get_results($wpdb->prepare("SELECT COUNT(*) as records FROM " . $table, array()));
       $countNumber = intval($count[0]->records);
 
@@ -66,9 +57,9 @@ class Persistance
   public static function logError($msg)
   {
     global $wpdb;
-    $table = Persistance::getErrorLogTableName();
+    $table = PersistanceGTSocial::getErrorLogTableName();
 
-    Persistance::deleteOldErrors(1000);
+    PersistanceGTSocial::deleteOldErrors(1000);
     $wpdb->insert(
       $table,
       array(
@@ -81,12 +72,13 @@ class Persistance
 
   private static function handleUpdateInsertResult($wpdb, $result, $methodName)
   {
+    $errMsg = $wpdb->last_error;
     if ($result === false) {
       if ($wpdb->last_error !== '') {
-        Persistance::logError($wpdb->last_error);
+        PersistanceGTSocial::logError($errMsg);
       }
 
-      throw new ErrorException("Failed to insert or update " . $methodName);
+      throw new ErrorException("Failed to insert or update " . $methodName . " >> " . $errMsg);
     }
   }
 
@@ -123,7 +115,7 @@ class Persistance
   {
     global $wpdb;
 
-    $table = Persistance::getSocialTokenTableName();
+    $table = PersistanceGTSocial::getSocialTokenTableName();
     $result = $wpdb->get_results($wpdb->prepare("SELECT token FROM " . $table . " LIMIT 1"));
 
     if (empty($result)) {
@@ -137,7 +129,7 @@ class Persistance
   {
     global $wpdb;
 
-    $table = Persistance::getSocialTokenTableName();
+    $table = PersistanceGTSocial::getSocialTokenTableName();
     // Remove all existing tokens before inserting the new one.
     // Table name comes from a controlled method, not user input.
     $wpdb->query("DELETE FROM " . $table); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -147,14 +139,14 @@ class Persistance
       array("%s")
     );
 
-    Persistance::handleUpdateInsertResult($wpdb, $result, "storeSocialToken");
+    PersistanceGTSocial::handleUpdateInsertResult($wpdb, $result, "storeSocialToken");
   }
 
   public static function getSocialImages()
   {
     global $wpdb;
 
-    $table = Persistance::getSocialImagesTableName();
+    $table = PersistanceGTSocial::getSocialImagesTableName();
     $result = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $table . " ORDER BY id DESC LIMIT 1"));
 
     if (empty($result)) {
@@ -171,7 +163,7 @@ class Persistance
   {
     global $wpdb;
 
-    $table = Persistance::getSocialImagesTableName();
+    $table = PersistanceGTSocial::getSocialImagesTableName();
     // Replace existing data — table name comes from a controlled method, not user input.
     $wpdb->query("DELETE FROM " . $table); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
     $result = $wpdb->insert(
@@ -183,7 +175,7 @@ class Persistance
       array("%s", "%d")
     );
 
-    Persistance::handleUpdateInsertResult($wpdb, $result, "persistSocialImages");
+    PersistanceGTSocial::handleUpdateInsertResult($wpdb, $result, "persistSocialImages");
   }
 
   public static function initDatabase()
@@ -191,10 +183,10 @@ class Persistance
 
     global $wpdb;
 
-    $dataTable = Persistance::getTableName();
-    $errorsTable = Persistance::getErrorLogTableName();
-    $socialTable = Persistance::getSocialImagesTableName();
-    $socialTokenTable = Persistance::getSocialTokenTableName();
+    $dataTable = PersistanceGTSocial::getTableName();
+    $errorsTable = PersistanceGTSocial::getErrorLogTableName();
+    $socialTable = PersistanceGTSocial::getSocialImagesTableName();
+    $socialTokenTable = PersistanceGTSocial::getSocialTokenTableName();
     $charset_collate = $wpdb->get_charset_collate();
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
 

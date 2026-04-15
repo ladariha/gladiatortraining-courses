@@ -1,6 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.19";
+$PLUGIN_VERSION = "1.0.25";
 /**
  * The plugin bootstrap file
  *
@@ -17,7 +17,7 @@ $PLUGIN_VERSION = "1.0.19";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.19
+ * Version:           1.0.25
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -152,15 +152,16 @@ add_shortcode('gladiator_social_images', 'gladiator_social_images_app');
 
 add_action('rest_api_init', function () {
 	register_rest_route('gladiatortraining/v1', '/social-token', array(
-		'methods'             => 'POST',
-		'callback'            => 'gladiatortraining_store_social_token',
+		'methods' => 'POST',
+		'callback' => 'gladiatortraining_store_social_token',
 		'permission_callback' => function () {
+			// return true;
 			return current_user_can('manage_options');
 		},
 		'args' => array(
 			'token' => array(
-				'required'          => true,
-				'type'              => 'string',
+				'required' => true,
+				'type' => 'string',
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 		),
@@ -169,11 +170,11 @@ add_action('rest_api_init', function () {
 
 function gladiatortraining_store_social_token(WP_REST_Request $request)
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/Persistance.php';
+	require_once plugin_dir_path(__FILE__) . 'includes/PersistanceGTSocial.php';
 
 	$token = $request->get_param('token');
 	try {
-		Persistance::storeSocialToken($token);
+		PersistanceGTSocial::storeSocialToken($token);
 		return new WP_REST_Response(array('success' => true), 200);
 	} catch (Exception $e) {
 		return new WP_REST_Response(array('success' => false, 'message' => $e->getMessage()), 500);

@@ -1,5 +1,5 @@
 <?php
-include_once plugin_dir_path(__FILE__) . "Persistance.php";
+include_once plugin_dir_path(__FILE__) . "PersistanceGTSocial.php";
 /**
  * Fired during plugin activation
  *
@@ -31,7 +31,7 @@ class Gladiatortraining_Courses_Activator
          */
         public static function activate()
         {
-                Persistance::initDatabase();
+                PersistanceGTSocial::initDatabase();
         }
 
 }
