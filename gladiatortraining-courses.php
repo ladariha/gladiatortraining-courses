@@ -1,6 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.25";
+$PLUGIN_VERSION = "1.0.31";
 /**
  * The plugin bootstrap file
  *
@@ -17,7 +17,7 @@ $PLUGIN_VERSION = "1.0.25";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.25
+ * Version:           1.0.31
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -171,7 +171,8 @@ add_action('rest_api_init', function () {
 		'methods' => 'GET',
 		'callback' => 'gladiatortraining_refresh_social_images',
 		'permission_callback' => function () {
-			return current_user_can('manage_options');
+			return true;
+			// return current_user_can('manage_options');
 		},
 	));
 });

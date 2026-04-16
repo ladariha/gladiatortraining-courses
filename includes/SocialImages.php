@@ -85,8 +85,8 @@ class SocialImages
     }
     $url = add_query_arg(
       array(
-        'fields' => 'attachments{media,subattachments{media,media_type},type}',
-        'limit' => $count,
+        'fields' => 'attachments{media,subattachments{media,media_type},media_type}',
+        'limit' => 12,
         'access_token' => $token,
       ),
       'https://graph.facebook.com/v25.0/' . rawurlencode($page_id) . '/feed'
@@ -117,13 +117,20 @@ class SocialImages
         foreach ($post['attachments']['data'] as $attachment) {
 
           if (isset($attachment['media']) && isset($attachment['media']['image']) && isset($attachment['media']['image']['src'])) {
-            $sources[] = $attachment['media']['image']['src'];
+            if (isset($attachment['media_type']) && ($attachment['media_type'] === 'photo' || $attachment['media_type'] === 'album')) {
+              if ($attachment['media']['image']['width'] > 405) {
+                $sources[] = $attachment['media']['image']['src'];
+              }
+            }
+
           }
 
           if (isset($attachment['subattachments']) && isset($attachment['subattachments']['data']) && is_array($attachment['subattachments']['data'])) {
             foreach ($attachment['subattachments']['data'] as $sub) {
-              if ($sub['type'] === 'photo' && isset($sub['media']['image']['src'])) {
-                $sources[] = $sub['media']['image']['src'];
+              if ($sub['media_type'] === 'photo' && isset($sub['media']['image']['src'])) {
+                if ($sub['media']['image']['width'] > 405) {
+                  $sources[] = $sub['media']['image']['src'];
+                }
               }
             }
           }
