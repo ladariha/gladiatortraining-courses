@@ -1,6 +1,6 @@
 <?php
 
-require_once plugin_dir_path(__FILE__) . 'Persistance.php';
+require_once plugin_dir_path(__FILE__) . 'PersistanceGTSocial.php';
 
 class CalendarProvider
 {
@@ -10,7 +10,7 @@ class CalendarProvider
     $thirtyMinutes = 30 * 60;
 
     try {
-      $persisted = Persistance::getSchedule();
+      $persisted = PersistanceGTSocial::getSchedule();
       if ($now - intval($persisted->timestamp) < $thirtyMinutes) {
         return json_decode($persisted->data, true);
       }
@@ -24,7 +24,7 @@ class CalendarProvider
       intval(date('Y', $now))
     );
 
-    Persistance::persistSchedule(json_encode($workouts), $now);
+    PersistanceGTSocial::persistSchedule(json_encode($workouts), $now);
 
     return $workouts;
   }
