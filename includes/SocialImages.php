@@ -86,7 +86,7 @@ class SocialImages
     $url = add_query_arg(
       array(
         'fields' => 'attachments{media,subattachments{media,media_type},media_type}',
-        'limit' => 12,
+        'limit' => 30,
         'access_token' => $token,
       ),
       'https://graph.facebook.com/v25.0/' . rawurlencode($page_id) . '/feed'
