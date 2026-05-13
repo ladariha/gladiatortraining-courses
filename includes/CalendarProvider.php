@@ -34,7 +34,7 @@ class CalendarProvider
     $url = "https://gladiatortraining.isportsystem.cz/ajax/ajax.schema.php";
     $response = wp_remote_post($url, array(
       'headers' => array(
-        'content-type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
       ),
       'body' => http_build_query(array(
         'id_sport' => 5,
