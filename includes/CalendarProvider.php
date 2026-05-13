@@ -31,10 +31,20 @@ class CalendarProvider
 
   public static function fetchAndParse($day, $month, $year)
   {
-    $timestamp = time();
-    $url = "https://gladiatortraining.isportsystem.cz/ajax/ajax.schema.php?day={$day}&month={$month}&year={$year}&id_sport=5&event=pageLoad&tab_type=activity&timetableWidth=970&schema_fixed_date=&_={$timestamp}";
-
-    $response = wp_remote_get($url);
+    $url = "https://gladiatortraining.isportsystem.cz/ajax/ajax.schema.php";
+    $response = wp_remote_post($url, array(
+      'headers' => array(
+        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
+      ),
+      'body' => http_build_query(array(
+        'id_sport' => 5,
+        'day' => $day,
+        'month' => $month,
+        'year' => $year,
+        'event' => 'init',
+        'timetableWidth' => 1210,
+      )),
+    ));
     if (is_wp_error($response)) {
       return array();
     }
