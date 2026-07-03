@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+GITHUB_TOKEN="${1:?Usage: ./build.sh <github_token>}"
+
 VERSION=$(sed -n "3p" gladiatortraining-courses.php | cut -d'"' -f 2)
 NEXTVERSION=$(echo ${VERSION} | awk -F. -v OFS=. '{$NF += 1 ; print}')
 echo "Increasing version to ${NEXTVERSION}"
@@ -27,7 +29,7 @@ cp -R public dist/public
 cp -R ./*.php dist/
 
 
-
+sed -i '' "s/GT_GITHUB_TOKEN_PLACEHOLDER/${GITHUB_TOKEN}/" dist/gladiatortraining-courses.php
 
 echo "Compressing files"
 cd dist

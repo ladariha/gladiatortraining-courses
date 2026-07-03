@@ -1,6 +1,6 @@
 <?php
 // READ-ONLY SECTION START - FOLLOWING LINES MUST BE NOT MODIFIED FOR BUILD.SH !!!
-$PLUGIN_VERSION = "1.0.31";
+$PLUGIN_VERSION = "1.0.44";
 /**
  * The plugin bootstrap file
  *
@@ -17,7 +17,7 @@ $PLUGIN_VERSION = "1.0.31";
  * Plugin Name:       gladiatortraining-courses
  * Plugin URI:        https://github.com/ladariha/gladiatortraining-courses
  * Description:       Registrace na události Gladiator Training.
- * Version:           1.0.31
+ * Version:           1.0.44
  * Author:            Lada Riha
  * Author URI:        https://github.com/ladariha/
  * License:           GPL-2.0+
@@ -51,6 +51,9 @@ define('GLADIATORTRAINING_COURSES_VERSION', $PLUGIN_VERSION);
  * Facebook social images configuration.
  * Replace the empty strings with real values or override in wp-config.php.
  */
+if (!defined('GT_GITHUB_TOKEN')) {
+	define('GT_GITHUB_TOKEN', 'GT_GITHUB_TOKEN_PLACEHOLDER');
+}
 if (!defined('GT_SOCIAL_FB_TOKEN')) {
 	define('GT_SOCIAL_FB_TOKEN', '');
 }
@@ -121,6 +124,11 @@ function gladiatortraining_courses_app()
 		'gladiatortraining_courses_app_js',
 		'GladiatortrainingCourses',
 		$calendarData
+	);
+	wp_localize_script(
+		'gladiatortraining_courses_app_js',
+		'gt_courses_logs',
+		CalendarProvider::getLogs()
 	);
 	$jsonData = json_encode($calendarData);
 	return "<div id=\"gladiatortraining_courses_app\"><div id=\"gladiatortraining_courses_app_content\" style=\"overflow: auto\"></div><script>renderTimetable(" . $jsonData . ")</script></div>";

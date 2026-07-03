@@ -1,0 +1,37 @@
+name: Scrape Gladiator Training
+
+on:
+  schedule:
+    - cron: "0 6,18 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+          cache-dependency-path: scrapper/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: scrapper
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium --with-deps
+        working-directory: scrapper
+
+      - name: Run scraper
+        run: node index.js
+        working-directory: scrapper
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: courses
+          path: scrapper/courses.json
+          retention-days: 7

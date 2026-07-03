@@ -4,6 +4,18 @@ require_once plugin_dir_path(__FILE__) . 'PersistanceGTSocial.php';
 
 class CalendarProvider
 {
+  private static $logs = array();
+
+  private static function log($message)
+  {
+    self::$logs[] = $message;
+  }
+
+  public static function getLogs()
+  {
+    return self::$logs;
+  }
+
   public static function getData()
   {
     $now = time();
@@ -11,82 +23,106 @@ class CalendarProvider
 
     try {
       $persisted = PersistanceGTSocial::getSchedule();
-      if ($now - intval($persisted->timestamp) < $thirtyMinutes) {
+      $cacheAge = $now - intval($persisted->timestamp);
+      if ($cacheAge < $thirtyMinutes) {
+        self::log('returning cached data');
         return json_decode($persisted->data, true);
       }
     } catch (Exception $e) {
       // no persisted data yet, fall through to fetch
     }
 
-    $workouts = CalendarProvider::fetchAndParse(
-      intval(date('d', $now)),
-      intval(date('n', $now)),
-      intval(date('Y', $now))
-    );
+    self::log('fetching from remote');
+    $workouts = CalendarProvider::fetchAndParse();
 
     PersistanceGTSocial::persistSchedule(json_encode($workouts), $now);
 
     return $workouts;
   }
 
-  public static function fetchAndParse($day, $month, $year)
+  public static function fetchAndParse()
   {
-    $url = "https://gladiatortraining.isportsystem.cz/ajax/ajax.schema.php";
-    $response = wp_remote_post($url, array(
-      'headers' => array(
-        'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
-      ),
-      'body' => http_build_query(array(
-        'id_sport' => 5,
-        'day' => $day,
-        'month' => $month,
-        'year' => $year,
-        'event' => 'init',
-        'timetableWidth' => 1210,
-      )),
-    ));
-    if (is_wp_error($response)) {
+    $token = defined('GT_GITHUB_TOKEN') ? GT_GITHUB_TOKEN : '';
+    $repo  = 'ladariha/gladiatortraining-courses';
+    $headers = array(
+      'Authorization'        => 'Bearer ' . $token,
+      'Accept'               => 'application/vnd.github+json',
+      'X-GitHub-Api-Version' => '2022-11-28',
+      'User-Agent'           => 'gladiatortraining-courses-wp-plugin',
+    );
+
+    // 1. Find the latest successful run of scrape.yml
+    $runsResponse = wp_remote_get(
+      "https://api.github.com/repos/{$repo}/actions/workflows/scrape.yml/runs?status=success&per_page=1",
+      array('headers' => $headers)
+    );
+    if (is_wp_error($runsResponse)) {
+      self::log('runs API error: ' . $runsResponse->get_error_message());
+      return array();
+    }
+    $runs = json_decode(wp_remote_retrieve_body($runsResponse), true);
+    if (empty($runs['workflow_runs'])) {
+      self::log('no successful workflow runs found');
+      return array();
+    }
+    $runId = $runs['workflow_runs'][0]['id'];
+    self::log('latest run id=' . $runId);
+
+    // 2. Get the "courses" artifact from that run
+    $artifactsResponse = wp_remote_get(
+      "https://api.github.com/repos/{$repo}/actions/runs/{$runId}/artifacts",
+      array('headers' => $headers)
+    );
+    if (is_wp_error($artifactsResponse)) {
+      self::log('artifacts API error: ' . $artifactsResponse->get_error_message());
+      return array();
+    }
+    $artifacts = json_decode(wp_remote_retrieve_body($artifactsResponse), true);
+    $artifactId = null;
+    foreach ($artifacts['artifacts'] as $artifact) {
+      if ($artifact['name'] === 'courses') {
+        $artifactId = $artifact['id'];
+        break;
+      }
+    }
+    if (!$artifactId) {
+      self::log('courses artifact not found in run ' . $runId);
+      return array();
+    }
+    self::log('artifact id=' . $artifactId);
+
+    // 3. Download the artifact zip
+    $zipResponse = wp_remote_get(
+      "https://api.github.com/repos/{$repo}/actions/artifacts/{$artifactId}/zip",
+      array('headers' => $headers, 'redirection' => 5)
+    );
+    if (is_wp_error($zipResponse)) {
+      self::log('artifact download error: ' . $zipResponse->get_error_message());
       return array();
     }
 
-    $html = wp_remote_retrieve_body($response);
+    // 4. Extract courses.json from the zip
+    $tmpFile = tempnam(sys_get_temp_dir(), 'gt_courses_') . '.zip';
+    file_put_contents($tmpFile, wp_remote_retrieve_body($zipResponse));
 
-    $dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $dom->loadHTML('<?xml encoding="UTF-8">' . $html);
-    libxml_clear_errors();
+    $zip = new ZipArchive();
+    if ($zip->open($tmpFile) !== true) {
+      self::log('failed to open artifact zip');
+      unlink($tmpFile);
+      return array();
+    }
+    $json = $zip->getFromName('courses.json');
+    $zip->close();
+    unlink($tmpFile);
 
-    $xpath = new DOMXPath($dom);
-    $slots = $xpath->query('//a[contains(@class, "slot")]');
-
-    $workouts = array();
-    foreach ($slots as $slot) {
-      // rel format: act|5|25|{id}|{start_unix}|{end_unix}|{price}
-      $parts = explode('|', $slot->getAttribute('rel'));
-      if (count($parts) < 6)
-        continue;
-
-      $startTimestamp = intval($parts[4]);
-      $endTimestamp = intval($parts[5]);
-
-      $getSpanText = function ($class) use ($xpath, $slot) {
-        $nodes = $xpath->query('.//span[@class="' . $class . '"]', $slot);
-        return $nodes->length > 0 ? trim($nodes->item(0)->textContent) : '';
-      };
-
-      $timeStr = $getSpanText('time'); // e.g. "17:00–18:15"
-      $timeParts = preg_split('/\x{2013}/u', $timeStr); // split on en-dash
-
-      $workouts[] = array(
-        'name' => $getSpanText('name'),
-        'start_day' => date('Y-m-d', $startTimestamp),
-        'end_day' => date('Y-m-d', $endTimestamp),
-        'start_time' => isset($timeParts[0]) ? trim($timeParts[0]) : '',
-        'end_time' => isset($timeParts[1]) ? trim($timeParts[1]) : '',
-        'instructor' => $getSpanText('instructor'),
-      );
+    if ($json === false) {
+      self::log('courses.json not found inside artifact zip');
+      return array();
     }
 
-    return $workouts;
+    $workouts = json_decode($json, true);
+    self::log('loaded ' . count($workouts) . ' workouts from GitHub artifact');
+
+    return $workouts ?: array();
   }
 }
