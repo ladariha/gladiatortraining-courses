@@ -32,6 +32,8 @@ async function fetchAndParse(day, month, year) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const slots = doc.querySelectorAll('a[class*="slot"]');
 
+      console.log("Slots: " + slots.length);
+
       const formatDate = (ts) => {
         const d = new Date(ts * 1000);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -64,6 +66,8 @@ async function fetchAndParse(day, month, year) {
     }, { day, month, year });
 
     return workouts;
+  } catch(e){
+    console.error("scrapping failed " + e.message);
   } finally {
     await browser.close();
   }
