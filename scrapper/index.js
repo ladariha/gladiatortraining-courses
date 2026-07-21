@@ -7,6 +7,7 @@ async function fetchAndParse(day, month, year) {
   const page = await browser.newPage();
 
   const logToOutput = (msg) => console.log(msg);
+  page.on('console', (msg) => logToOutput('[page] ' + msg.text()));
 
   try {
     await page.goto('https://gladiatortraining.isportsystem.cz/', { waitUntil: 'domcontentloaded' });
@@ -34,7 +35,7 @@ async function fetchAndParse(day, month, year) {
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const slots = doc.querySelectorAll('a[class*="slot"]');
 
-      logToOutput("Slots: " + slots.length);
+      console.log("Slots: " + slots.length);
 
       const formatDate = (ts) => {
         const d = new Date(ts * 1000);
