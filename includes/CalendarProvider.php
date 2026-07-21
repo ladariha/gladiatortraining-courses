@@ -91,18 +91,38 @@ class CalendarProvider
     }
     self::log('artifact id=' . $artifactId);
 
-    // 3. Download the artifact zip
+    // 3. Download the artifact zip.
+    // GitHub responds with a 302 to a short-lived, pre-signed storage URL. We must not
+    // resend the GitHub Authorization/API headers to that URL, so redirects are followed
+    // manually instead of letting wp_remote_get do it.
     $zipResponse = wp_remote_get(
       "https://api.github.com/repos/{$repo}/actions/artifacts/{$artifactId}/zip",
-      array('headers' => $headers, 'redirection' => 5)
+      array('headers' => $headers, 'redirection' => 0, 'timeout' => 30)
     );
     if (is_wp_error($zipResponse)) {
       self::log('artifact download error: ' . $zipResponse->get_error_message());
       return array();
     }
 
+    $status = wp_remote_retrieve_response_code($zipResponse);
+    if ($status === 302) {
+      $downloadUrl = wp_remote_retrieve_header($zipResponse, 'location');
+      if (!$downloadUrl) {
+        self::log('artifact download redirect missing location header');
+        return array();
+      }
+      $zipResponse = wp_remote_get($downloadUrl, array('timeout' => 30));
+      if (is_wp_error($zipResponse)) {
+        self::log('artifact download error: ' . $zipResponse->get_error_message());
+        return array();
+      }
+    } elseif ($status !== 200) {
+      self::log('artifact download unexpected status ' . $status);
+      return array();
+    }
+
     // 4. Extract courses.json from the zip
-    $tmpFile = tempnam(sys_get_temp_dir(), 'gt_courses_') . '.zip';
+    $tmpFile = tempnam(sys_get_temp_dir(), 'gt_courses_');
     file_put_contents($tmpFile, wp_remote_retrieve_body($zipResponse));
 
     $zip = new ZipArchive();
